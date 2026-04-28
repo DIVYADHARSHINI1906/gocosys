@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel – GOCOSYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+  :root{--gold:#c8942a;--primary:#90CAF9;--bg:#05060f;--bg2:#0b0d1a;--surface:rgba(255,255,255,0.04);--border:rgba(144,202,249,0.12);--text-muted:#8892a4;--radius:14px;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#e2e8f0;overflow-x:hidden;min-height:100vh;}
+
+  /* ── Sidebar ── */
+  .admin-sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(11,13,26,.98);border-right:1px solid var(--border);z-index:100;display:flex;flex-direction:column;padding:24px 0;}
+  .sidebar-logo{padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .sidebar-logo span{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo small{display:block;font-size:.65rem;color:var(--text-muted);margin-top:2px;letter-spacing:.8px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 24px;color:var(--text-muted);font-size:.84rem;font-weight:500;cursor:pointer;transition:all .2s;border-left:3px solid transparent;text-decoration:none;}
+  .nav-item:hover{color:#e2e8f0;background:rgba(144,202,249,.05);}
+  .nav-item.active{color:#e2e8f0;border-left-color:var(--gold);background:rgba(200,148,42,.08);}
+  .nav-item i{font-size:1rem;width:18px;text-align:center;}
+  .nav-badge{margin-left:auto;background:rgba(239,83,80,.2);color:#ef5350;border:1px solid rgba(239,83,80,.3);border-radius:20px;font-size:.65rem;font-weight:700;padding:2px 7px;}
+  .nav-section-title{padding:16px 24px 6px;font-size:.65rem;font-weight:700;color:var(--text-muted);letter-spacing:1.2px;text-transform:uppercase;}
+  .sidebar-bottom{margin-top:auto;padding:16px 24px;border-top:1px solid var(--border);}
+  .logout-btn{display:flex;align-items:center;gap:9px;color:#ef9a9a;font-size:.84rem;font-weight:500;cursor:pointer;background:none;border:none;width:100%;padding:0;transition:color .2s;}
+  .logout-btn:hover{color:#ef5350;}
+
+  /* ── Main ── */
+  .admin-main{margin-left:240px;min-height:100vh;padding:32px;}
+  .page-header{margin-bottom:28px;}
+  .page-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:#fff;}
+  .page-sub{font-size:.84rem;color:var(--text-muted);margin-top:4px;}
+
+  /* ── Stats Cards ── */
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;display:flex;align-items:center;gap:16px;}
+  .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+  .stat-num{font-size:1.6rem;font-weight:700;color:#fff;line-height:1;}
+  .stat-label{font-size:.78rem;color:var(--text-muted);margin-top:3px;}
+
+  /* ── Glass Card ── */
+  .glass-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius);}
+
+  /* ── Table ── */
+  .admin-table{width:100%;border-collapse:collapse;}
+  .admin-table th{padding:12px 16px;font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);text-align:left;}
+  .admin-table td{padding:14px 16px;font-size:.84rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+  .admin-table tr:last-child td{border-bottom:none;}
+  .admin-table tr:hover td{background:rgba(255,255,255,.02);}
+
+  /* ── Badges ── */
+  .badge-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700;}
+  .badge-ai{background:rgba(206,147,216,.15);color:#ce93d8;border:1px solid rgba(206,147,216,.3);}
+  .badge-web{background:rgba(144,202,249,.12);color:#90CAF9;border:1px solid rgba(144,202,249,.25);}
+  .badge-seo{background:rgba(255,226,70,.12);color:#FFE246;border:1px solid rgba(255,226,70,.25);}
+  .badge-marketing{background:rgba(244,143,177,.12);color:#f48fb1;border:1px solid rgba(244,143,177,.25);}
+  .badge-career{background:rgba(128,203,196,.12);color:#80cbc4;border:1px solid rgba(128,203,196,.25);}
+  .badge-pending{background:rgba(255,167,38,.12);color:#FFA726;border:1px solid rgba(255,167,38,.25);}
+  .badge-confirmed{background:rgba(102,187,106,.12);color:#66BB6A;border:1px solid rgba(102,187,106,.25);}
+  .badge-cancelled{background:rgba(239,83,80,.12);color:#ef5350;border:1px solid rgba(239,83,80,.25);}
+  .badge-completed{background:rgba(144,202,249,.12);color:#90CAF9;border:1px solid rgba(144,202,249,.25);}
+  .badge-new{background:rgba(239,83,80,.12);color:#ef5350;border:1px solid rgba(239,83,80,.25);}
+  .badge-read{background:rgba(255,255,255,.06);color:#8892a4;border:1px solid rgba(255,255,255,.1);}
+  .badge-replied{background:rgba(102,187,106,.12);color:#66BB6A;border:1px solid rgba(102,187,106,.25);}
+
+  /* ── Action Buttons ── */
+  .btn-sm-act{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:.74rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .btn-edit{background:rgba(144,202,249,.1);color:#90CAF9;border:1px solid rgba(144,202,249,.25);}
+  .btn-edit:hover{background:rgba(144,202,249,.2);}
+  .btn-delete{background:rgba(239,83,80,.1);color:#ef5350;border:1px solid rgba(239,83,80,.25);}
+  .btn-delete:hover{background:rgba(239,83,80,.2);}
+  .btn-view{background:rgba(255,255,255,.06);color:#e2e8f0;border:1px solid rgba(255,255,255,.1);}
+  .btn-view:hover{background:rgba(255,255,255,.1);}
+
+  /* ── Form Inputs ── */
+  .admin-input{width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;transition:border .2s;}
+  .admin-input:focus{border-color:rgba(200,148,42,.4);background:rgba(200,148,42,.04);}
+  .admin-input::placeholder{color:var(--text-muted);}
+  .admin-label{display:block;font-size:.74rem;font-weight:600;color:#c8d8e8;margin-bottom:6px;letter-spacing:.4px;}
+  select.admin-input option{background:#0b0d1a;color:#e2e8f0;}
+
+  /* ── Primary Button ── */
+  .btn-primary-gold{background:linear-gradient(135deg,var(--gold),#e8a730);border:none;color:#000;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.86rem;padding:11px 24px;border-radius:10px;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:7px;}
+  .btn-primary-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,148,42,.35);}
+  .btn-primary-gold:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+  /* ── Modal ── */
+  .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(5,6,15,.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal-box{width:100%;max-width:680px;max-height:90vh;overflow-y:auto;background:rgba(11,13,26,.98);border:1px solid var(--border);border-radius:20px;box-shadow:0 40px 100px rgba(0,0,0,.7);}
+  .modal-header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .modal-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:#fff;}
+  .modal-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text-muted);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .modal-close:hover{background:rgba(239,83,80,.15);color:#ef5350;}
+  .modal-body{padding:28px;}
+  .modal-footer{padding:18px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+
+  /* ── Tabs ── */
+  .section-tabs{display:flex;gap:4px;margin-bottom:24px;}
+  .section-tab{padding:8px 18px;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--text-muted);transition:all .2s;}
+  .section-tab.active{background:rgba(200,148,42,.12);border-color:rgba(200,148,42,.3);color:#e2e8f0;}
+
+  /* ── Pages ── */
+  .admin-page{display:none;}
+  .admin-page.active{display:block;}
+
+  /* ── Toolbar ── */
+  .toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .toolbar-search{flex:1;min-width:200px;position:relative;}
+  .toolbar-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);}
+  .toolbar-search input{padding-left:36px;}
+
+  /* ── Alert ── */
+  .admin-alert{padding:12px 16px;border-radius:10px;font-size:.84rem;margin-bottom:16px;display:none;}
+  .admin-alert.show{display:flex;align-items:center;gap:8px;}
+  .admin-alert.ok{background:rgba(102,187,106,.1);border:1px solid rgba(102,187,106,.25);color:#a5d6a7;}
+  .admin-alert.err{background:rgba(239,83,80,.1);border:1px solid rgba(239,83,80,.25);color:#ef9a9a;}
+
+  /* ── Responsive ── */
+  @media(max-width:768px){
+    .admin-sidebar{width:200px;}
+    .admin-main{margin-left:200px;padding:20px;}
+  }
+  @media(max-width:576px){
+    .admin-sidebar{transform:translateX(-100%);transition:transform .3s;}
+    .admin-sidebar.open{transform:translateX(0);}
+    .admin-main{margin-left:0;padding:16px;}
+    .mobile-menu-btn{display:flex!important;}
+  }
+  .mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:200;background:rgba(11,13,26,.95);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:#e2e8f0;cursor:pointer;}
+
+  /* ── Quill-like textarea for content ── */
+  #articleContent{min-height:180px;font-family:'DM Sans',sans-serif;resize:vertical;}
+
+  /* ── Pagination ── */
+  .pagination-wrap{display:flex;align-items:center;gap:8px;padding:16px 0 0;justify-content:flex-end;}
+  .pg-btn{padding:6px 14px;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text-muted);transition:all .2s;}
+  .pg-btn:hover:not(:disabled){background:rgba(144,202,249,.1);color:#90CAF9;}
+  .pg-btn:disabled{opacity:.4;cursor:default;}
+  .pg-info{font-size:.78rem;color:var(--text-muted);}
+  </style>
+</head>
+<body>
+
+<!-- Mobile sidebar toggle -->
+<button class="mobile-menu-btn" id="mobileSidebarBtn" onclick="document.querySelector('.admin-sidebar').classList.toggle('open')">
+  <i class="bi bi-list fs-5"></i>
+</button>
+
+<!-- ── SIDEBAR ── -->
+<aside class="admin-sidebar">
+  <div class="sidebar-logo">
+    <span>GOCOSYS</span>
+    <small>ADMIN PANEL</small>
+  </div>
+
+  <div class="nav-section-title">Overview</div>
+  <a class="nav-item active" onclick="showPage('dashboard')" href="#">
+    <i class="bi bi-speedometer2"></i> Dashboard
+  </a>
+
+  <div class="nav-section-title">Content</div>
+  <a class="nav-item" onclick="showPage('articles')" href="#">
+    <i class="bi bi-file-earmark-text"></i> Articles
+  </a>
+
+  <div class="nav-section-title">Content</div>
+  <a class="nav-item" onclick="showPage('workshops')" href="#">
+    <i class="bi bi-mortarboard-fill"></i> Workshops
+  </a>
+
+  <div class="nav-section-title">CRM</div>
+  <a class="nav-item" onclick="showPage('consultations')" href="#">
+    <i class="bi bi-calendar-check"></i> Consultations
+    <span class="nav-badge" id="pendingBadge">0</span>
+  </a>
+  <a class="nav-item" onclick="showPage('contacts')" href="#">
+    <i class="bi bi-envelope"></i> Contact Messages
+    <span class="nav-badge" id="newMsgBadge">0</span>
+  </a>
+
+  <div class="sidebar-bottom">
+    <a href="blog.html" style="display:flex;align-items:center;gap:9px;color:var(--text-muted);font-size:.82rem;text-decoration:none;margin-bottom:12px;">
+      <i class="bi bi-arrow-left-circle"></i> Back to Site
+    </a>
+    <button class="logout-btn" onclick="doAdminLogout()">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="admin-main">
+
+  <!-- ── DASHBOARD ── -->
+  <section class="admin-page active" id="pageDashboard">
+    <div class="page-header">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub" id="adminWelcome">Welcome back, Admin</div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(144,202,249,.12);color:#90CAF9;"><i class="bi bi-file-earmark-text"></i></div>
+          <div><div class="stat-num" id="statArticles">—</div><div class="stat-label">Articles</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(200,148,42,.12);color:var(--gold);"><i class="bi bi-calendar-check"></i></div>
+          <div><div class="stat-num" id="statConsult">—</div><div class="stat-label">Consultations</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(255,167,38,.12);color:#FFA726;"><i class="bi bi-hourglass-split"></i></div>
+          <div><div class="stat-num" id="statPending">—</div><div class="stat-label">Pending</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(239,83,80,.12);color:#ef5350;"><i class="bi bi-envelope"></i></div>
+          <div><div class="stat-num" id="statNewMsg">—</div><div class="stat-label">New Messages</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Recent consultations preview -->
+    <div class="glass-card p-3 mb-3">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div style="font-weight:600;font-size:.9rem;">Recent Consultations</div>
+        <button class="btn-sm-act btn-view" onclick="showPage('consultations')">View All <i class="bi bi-arrow-right"></i></button>
+      </div>
+      <div id="dashConsultList"><div style="color:var(--text-muted);font-size:.84rem;padding:12px 0;">Loading...</div></div>
+    </div>
+  </section>
+
+  <!-- ── ARTICLES ── -->
+  <section class="admin-page" id="pageArticles">
+    <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <div class="page-title">Articles</div>
+        <div class="page-sub">Manage blog posts</div>
+      </div>
+      <button class="btn-primary-gold" onclick="openArticleModal()">
+        <i class="bi bi-plus-lg"></i> Add New Article
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-search">
+        <i class="bi bi-search"></i>
+        <input type="text" class="admin-input" id="artSearch" placeholder="Search articles..." oninput="loadArticles()"/>
+      </div>
+      <select class="admin-input" style="width:auto;min-width:140px;" id="artCatFilter" onchange="loadArticles()">
+        <option value="">All Categories</option>
+        <option value="ai">AI & ML</option>
+        <option value="web">Web Dev</option>
+        <option value="seo">SEO</option>
+        <option value="marketing">Marketing</option>
+        <option value="career">Career</option>
+      </select>
+    </div>
+
+    <div id="artAlert" class="admin-alert"></div>
+
+    <div class="glass-card" style="overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Author</th>
+              <th>Likes</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="artTableBody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap px-3 pb-3" id="artPagination"></div>
+    </div>
+  </section>
+
+  <!-- ── CONSULTATIONS ── -->
+  <section class="admin-page" id="pageConsultations">
+    <div class="page-header">
+      <div class="page-title">Consultations</div>
+      <div class="page-sub">Manage booking requests</div>
+    </div>
+
+    <div class="section-tabs">
+      <button class="section-tab active" onclick="setConsultFilter('',this)">All</button>
+      <button class="section-tab" onclick="setConsultFilter('pending',this)">Pending</button>
+      <button class="section-tab" onclick="setConsultFilter('confirmed',this)">Confirmed</button>
+      <button class="section-tab" onclick="setConsultFilter('completed',this)">Completed</button>
+      <button class="section-tab" onclick="setConsultFilter('cancelled',this)">Cancelled</button>
+    </div>
+
+    <div class="glass-card" style="overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Service</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="consultTableBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap px-3 pb-3" id="consultPagination"></div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT MESSAGES ── -->
+  <section class="admin-page" id="pageContacts">
+    <div class="page-header">
+      <div class="page-title">Contact Messages</div>
+      <div class="page-sub">Messages from the contact form</div>
+    </div>
+
+    <div class="section-tabs">
+      <button class="section-tab active" onclick="setMsgFilter('',this)">All</button>
+      <button class="section-tab" onclick="setMsgFilter('new',this)">New</button>
+      <button class="section-tab" onclick="setMsgFilter('read',this)">Read</button>
+      <button class="section-tab" onclick="setMsgFilter('replied',this)">Replied</button>
+    </div>
+
+    <div class="glass-card" style="overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Subject</th>
+              <th>Preview</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="msgTableBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap px-3 pb-3" id="msgPagination"></div>
+    </div>
+  </section>
+
+  <!-- ── WORKSHOPS ── -->
+  <section class="admin-page" id="pageWorkshops">
+    <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <div class="page-title">Workshops</div>
+        <div class="page-sub">Manage workshops and events</div>
+      </div>
+      <button class="btn-primary-gold" onclick="openWorkshopModal()">
+        <i class="bi bi-plus-lg"></i> Add Workshop
+      </button>
+    </div>
+    <div id="workshopAlert" class="admin-alert"></div>
+    <div class="row g-3" id="workshopGrid">
+      <div style="color:var(--text-muted);padding:32px;text-align:center;">Loading...</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ WORKSHOP MODAL ═══ -->
+<div class="modal-overlay" id="workshopModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="workshopModalTitle">Add Workshop</div>
+      <button class="modal-close" onclick="closeWorkshopModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editWorkshopId"/>
+      <div class="admin-alert" id="wsModalAlert"></div>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="admin-label">Title *</label>
+          <input type="text" class="admin-input" id="wsTitle" placeholder="Workshop title"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Date *</label>
+          <input type="date" class="admin-input" id="wsDate"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Time</label>
+          <input type="time" class="admin-input" id="wsTime" value="10:00"/>
+        </div>
+        <div class="col-sm-4">
+          <label class="admin-label">Mode</label>
+          <select class="admin-input" id="wsMode">
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+        </div>
+        <div class="col-sm-4">
+          <label class="admin-label">Price</label>
+          <input type="text" class="admin-input" id="wsPrice" placeholder="Free / ₹299"/>
+        </div>
+        <div class="col-sm-4">
+          <label class="admin-label">Seats</label>
+          <input type="number" class="admin-input" id="wsSeats" placeholder="50" min="0"/>
+        </div>
+        <div class="col-sm-4">
+          <label class="admin-label">Icon (Emoji)</label>
+          <input type="text" class="admin-input" id="wsIcon" placeholder="🎓" maxlength="4"/>
+        </div>
+        <div class="col-sm-4">
+          <label class="admin-label">Status</label>
+          <select class="admin-input" id="wsStatus">
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-sm-4">
+          <label class="admin-label">Color Theme</label>
+          <select class="admin-input" id="wsColor">
+            <option value="linear-gradient(135deg,#90CAF9,#1565c0)">Blue</option>
+            <option value="linear-gradient(135deg,#6a1b9a,#ce93d8)">Purple</option>
+            <option value="linear-gradient(135deg,#c8942a,#f0c040)">Gold</option>
+            <option value="linear-gradient(135deg,#00695c,#80cbc4)">Teal</option>
+            <option value="linear-gradient(135deg,#c62828,#ef9a9a)">Red</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="admin-label">Register Link</label>
+          <input type="text" class="admin-input" id="wsRegLink" placeholder="https://forms.google.com/..."/>
+        </div>
+        <div class="col-12">
+          <label class="admin-label">Description</label>
+          <textarea class="admin-input" id="wsDesc" rows="3" placeholder="Workshop details..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm-act btn-view" onclick="closeWorkshopModal()">Cancel</button>
+      <button class="btn-primary-gold" id="wsSaveBtn" onclick="saveWorkshop()">
+        <i class="bi bi-check-lg"></i> Save Workshop
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ARTICLE MODAL ═══ -->
+<div class="modal-overlay" id="articleModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="articleModalTitle">Add New Article</div>
+      <button class="modal-close" onclick="closeArticleModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editArticleId"/>
+      <div class="admin-alert" id="artModalAlert"></div>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="admin-label">Title *</label>
+          <input type="text" class="admin-input" id="artTitle" placeholder="Article title"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Category *</label>
+          <select class="admin-input" id="artCategory">
+            <option value="">Select category</option>
+            <option value="ai">AI & ML</option>
+            <option value="web">Web Dev</option>
+            <option value="seo">SEO</option>
+            <option value="marketing">Marketing</option>
+            <option value="career">Career</option>
+          </select>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Category Label *</label>
+          <input type="text" class="admin-input" id="artCatLabel" placeholder="e.g. AI & ML"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Author Name *</label>
+          <input type="text" class="admin-input" id="artAuthor" placeholder="Author full name"/>
+        </div>
+        <div class="col-sm-3">
+          <label class="admin-label">Initials</label>
+          <input type="text" class="admin-input" id="artAuthorInit" placeholder="GC" maxlength="2"/>
+        </div>
+        <div class="col-sm-3">
+          <label class="admin-label">Read Time</label>
+          <input type="text" class="admin-input" id="artReadTime" placeholder="5 min"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Author Role</label>
+          <input type="text" class="admin-input" id="artAuthorRole" placeholder="Senior Engineer"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="admin-label">Featured?</label>
+          <select class="admin-input" id="artFeatured">
+            <option value="0">No</option>
+            <option value="1">Yes (Featured Post)</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="admin-label">Excerpt *</label>
+          <textarea class="admin-input" id="artExcerpt" rows="2" placeholder="Short description shown in article cards..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="admin-label">Content (HTML allowed) *</label>
+          <textarea class="admin-input" id="articleContent" placeholder="<p>Article body content...</p>&#10;<h2>Section Title</h2>&#10;<p>More content...</p>"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm-act btn-view" onclick="closeArticleModal()">Cancel</button>
+      <button class="btn-primary-gold" id="artSaveBtn" onclick="saveArticle()">
+        <i class="bi bi-save"></i> Save Article
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DETAIL MODAL (Consultation / Message view) ═══ -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="detailModalTitle">Details</div>
+      <button class="modal-close" onclick="closeDetailModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-sm-act btn-view" onclick="closeDetailModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DELETE CONFIRM MODAL ═══ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color:#ef5350;">Confirm Delete</div>
+      <button class="modal-close" onclick="document.getElementById('deleteModal').classList.remove('open')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-muted);font-size:.88rem;line-height:1.7;" id="deleteConfirmText">Are you sure you want to delete this article? This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm-act btn-view" onclick="document.getElementById('deleteModal').classList.remove('open')">Cancel</button>
+      <button class="btn-sm-act btn-delete" id="deleteConfirmBtn" style="padding:8px 18px;">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════
+   GOCOSYS — admin.js (inline)
+══════════════════════════════════════════════════ */
+
+const API_BASE = ''; // same folder
+
+/* ── Auth guard ── */
+let _adminUser = null;
+(async function checkAdminAuth() {
+  try {
+    const res = await fetch('check_session.php');
+    const d   = await res.json();
+    if (!d.loggedIn || d.user.role !== 'admin') {
+      alert('Admin access required. Please login as admin.');
+      window.location.href = 'blog.html';
+      return;
+    }
+    _adminUser = d.user;
+    document.getElementById('adminWelcome').textContent = `Welcome back, ${d.user.name}`;
+    loadDashboard();
+  } catch(e) {
+    alert('Cannot connect to server. Is XAMPP running?');
+  }
+})();
+
+/* ── Page navigation ── */
+function showPage(name) {
+  document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().startsWith(name === 'dashboard' ? 'dash' : name === 'articles' ? 'artic' : name === 'consultations' ? 'consul' : 'contact')) {
+      n.classList.add('active');
+    }
+  });
+  if (name === 'articles')      loadArticles();
+  if (name === 'workshops')     loadWorkshops();
+  if (name === 'consultations') loadConsultations();
+  if (name === 'contacts')      loadMessages();
+  // close mobile sidebar
+  document.querySelector('.admin-sidebar').classList.remove('open');
+}
+
+/* ── Logout ── */
+async function doAdminLogout() {
+  try { await fetch('logout.php'); } catch(e) {}
+  localStorage.removeItem('gocosys_user');
+  window.location.href = 'blog.html';
+}
+
+/* ════════════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════════════ */
+async function loadDashboard() {
+  try {
+    const [artRes, conRes, msgRes] = await Promise.all([
+      fetch('api_articles.php?action=list&limit=5'),
+      fetch('api_consultation.php?action=list&limit=5'),
+      fetch('api_contact.php?action=list&limit=5')
+    ]);
+    const artData = await artRes.json();
+    const conData = await conRes.json();
+    const msgData = await msgRes.json();
+
+    const totalArt = artData.total || 0;
+    const totalCon = conData.total || 0;
+    const pendCon  = (conData.consultations || []).filter(c => c.status === 'pending').length;
+    const newMsg   = (msgData.messages || []).filter(m => m.status === 'new').length;
+
+    document.getElementById('statArticles').textContent = totalArt;
+    document.getElementById('statConsult').textContent  = totalCon;
+    document.getElementById('statPending').textContent  = pendCon;
+    document.getElementById('statNewMsg').textContent   = newMsg;
+    document.getElementById('pendingBadge').textContent = pendCon;
+    document.getElementById('newMsgBadge').textContent  = newMsg;
+
+    // Recent consultations
+    const list = conData.consultations || [];
+    const dc = document.getElementById('dashConsultList');
+    if (!list.length) { dc.innerHTML = '<div style="color:var(--text-muted);font-size:.84rem;padding:8px 0;">No consultations yet.</div>'; return; }
+    dc.innerHTML = list.map(c => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+        <div style="flex:1;">
+          <div style="font-size:.86rem;font-weight:600;color:#e2e8f0;">${esc(c.name)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);">${esc(c.service_type)} · ${c.booked_on}</div>
+        </div>
+        <span class="badge-pill badge-${c.status}">${c.status}</span>
+      </div>`).join('');
+  } catch(e) {
+    console.error('Dashboard load error', e);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   ARTICLES
+════════════════════════════════════════════════ */
+let artPage = 0, artTotal = 0;
+const ART_LIMIT = 10;
+
+async function loadArticles() {
+  artPage = 0;
+  await fetchArticles();
+}
+
+async function fetchArticles() {
+  const search   = document.getElementById('artSearch')?.value.trim() || '';
+  const category = document.getElementById('artCatFilter')?.value || '';
+  const offset   = artPage * ART_LIMIT;
+  const url = `api_articles.php?action=list&limit=${ART_LIMIT}&offset=${offset}${search ? '&search=' + encodeURIComponent(search) : ''}${category ? '&category=' + category : ''}`;
+
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+    artTotal = data.total || 0;
+    renderArticles(data.articles || []);
+    renderArtPagination();
+  } catch(e) {
+    document.getElementById('artTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:#ef9a9a;padding:24px;">Failed to load. Is XAMPP running?</td></tr>`;
+  }
+}
+
+const CAT_BADGE = { ai:'badge-ai', web:'badge-web', seo:'badge-seo', marketing:'badge-marketing', career:'badge-career' };
+
+function renderArticles(list) {
+  const tbody = document.getElementById('artTableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No articles found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(a => `
+    <tr>
+      <td>
+        <div style="font-weight:600;color:#e2e8f0;font-size:.84rem;max-width:280px;">${esc(a.title)}</div>
+        ${a.featured ? '<span style="font-size:.65rem;color:var(--gold);">⭐ Featured</span>' : ''}
+      </td>
+      <td><span class="badge-pill ${CAT_BADGE[a.category] || 'badge-web'}">${esc(a.category_label)}</span></td>
+      <td style="color:var(--text-muted);font-size:.82rem;">${esc(a.author)}</td>
+      <td style="font-size:.82rem;color:var(--text-muted);">❤️ ${a.like_count} 🔖 ${a.bookmark_count}</td>
+      <td style="font-size:.78rem;color:var(--text-muted);white-space:nowrap;">${a.date}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn-sm-act btn-edit" onclick="editArticle(${a.id})"><i class="bi bi-pencil"></i> Edit</button>
+        <button class="btn-sm-act btn-delete ms-1" onclick="confirmDeleteArticle(${a.id},'${esc(a.title).replace(/'/g,"\\'")}')"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderArtPagination() {
+  const pages = Math.ceil(artTotal / ART_LIMIT);
+  const pg = document.getElementById('artPagination');
+  if (pages <= 1) { pg.innerHTML = ''; return; }
+  pg.innerHTML = `
+    <button class="pg-btn" onclick="artPage--;fetchArticles()" ${artPage === 0 ? 'disabled' : ''}><i class="bi bi-chevron-left"></i></button>
+    <span class="pg-info">Page ${artPage + 1} / ${pages} &nbsp;(${artTotal} articles)</span>
+    <button class="pg-btn" onclick="artPage++;fetchArticles()" ${artPage >= pages - 1 ? 'disabled' : ''}><i class="bi bi-chevron-right"></i></button>`;
+}
+
+/* ── Article Modal ── */
+function openArticleModal(data = null) {
+  document.getElementById('editArticleId').value = '';
+  document.getElementById('articleModalTitle').textContent = 'Add New Article';
+  ['artTitle','artExcerpt','articleContent','artAuthor','artAuthorInit','artAuthorRole','artReadTime'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('artCategory').value  = '';
+  document.getElementById('artCatLabel').value  = '';
+  document.getElementById('artFeatured').value  = '0';
+  document.getElementById('artModalAlert').classList.remove('show','ok','err');
+
+  if (data) {
+    document.getElementById('editArticleId').value  = data.id;
+    document.getElementById('articleModalTitle').textContent = 'Edit Article';
+    document.getElementById('artTitle').value       = data.title       || '';
+    document.getElementById('artExcerpt').value     = data.excerpt     || '';
+    document.getElementById('articleContent').value = data.content     || '';
+    document.getElementById('artAuthor').value      = data.author      || '';
+    document.getElementById('artAuthorInit').value  = data.author_initials || '';
+    document.getElementById('artAuthorRole').value  = data.author_role || '';
+    document.getElementById('artReadTime').value    = data.read_time   || '';
+    document.getElementById('artCategory').value    = data.category    || '';
+    document.getElementById('artCatLabel').value    = data.category_label || '';
+    document.getElementById('artFeatured').value    = data.featured ? '1' : '0';
+  }
+  document.getElementById('articleModal').classList.add('open');
+}
+function closeArticleModal() {
+  document.getElementById('articleModal').classList.remove('open');
+}
+
+async function editArticle(id) {
+  try {
+    const res  = await fetch(`api_articles.php?action=get&id=${id}`);
+    const data = await res.json();
+    if (data.success) openArticleModal(data.article);
+    else alert('Could not load article.');
+  } catch(e) { alert('Server error'); }
+}
+
+async function saveArticle() {
+  const id       = document.getElementById('editArticleId').value;
+  const title    = document.getElementById('artTitle').value.trim();
+  const excerpt  = document.getElementById('artExcerpt').value.trim();
+  const content  = document.getElementById('articleContent').value.trim();
+  const author   = document.getElementById('artAuthor').value.trim();
+  const initials = document.getElementById('artAuthorInit').value.trim() || author.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const role     = document.getElementById('artAuthorRole').value.trim();
+  const readTime = document.getElementById('artReadTime').value.trim() || '5 min';
+  const category = document.getElementById('artCategory').value;
+  const catLabel = document.getElementById('artCatLabel').value.trim();
+  const featured = parseInt(document.getElementById('artFeatured').value);
+
+  const alertEl = document.getElementById('artModalAlert');
+  function modalAlert(msg, ok) {
+    alertEl.textContent = msg;
+    alertEl.className = `admin-alert show ${ok ? 'ok' : 'err'}`;
+  }
+
+  if (!title)    return modalAlert('Title is required', false);
+  if (!category) return modalAlert('Category is required', false);
+  if (!excerpt)  return modalAlert('Excerpt is required', false);
+  if (!content)  return modalAlert('Content is required', false);
+  if (!author)   return modalAlert('Author is required', false);
+
+  const btn = document.getElementById('artSaveBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+
+  const payload = { title, excerpt, content, author, author_initials: initials, author_role: role,
+                    author_color: 'linear-gradient(135deg,#90CAF9,#1565c0)', read_time: readTime,
+                    category, category_label: catLabel || category, featured, published: 1 };
+  if (id) payload.id = parseInt(id);
+
+  try {
+    const url = id ? `api_articles.php?action=update` : `api_articles.php?action=create`;
+    const res  = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      modalAlert(id ? 'Article updated!' : 'Article created!', true);
+      setTimeout(() => { closeArticleModal(); loadArticles(); loadDashboard(); }, 900);
+    } else {
+      modalAlert(data.message || 'Save failed', false);
+    }
+  } catch(e) {
+    modalAlert('Server error: ' + e.message, false);
+  }
+  btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Save Article';
+}
+
+let _deleteArtId = null;
+function confirmDeleteArticle(id, title) {
+  _deleteArtId = id;
+  document.getElementById('deleteConfirmText').textContent = `Delete "${title}"? This cannot be undone.`;
+  document.getElementById('deleteConfirmBtn').onclick = deleteArticle;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+async function deleteArticle() {
+  if (!_deleteArtId) return;
+  document.getElementById('deleteModal').classList.remove('open');
+  try {
+    const res  = await fetch(`api_articles.php?action=delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: _deleteArtId })
+    });
+    const data = await res.json();
+    if (data.success) { loadArticles(); loadDashboard(); showArtAlert('Article deleted', true); }
+    else showArtAlert(data.message || 'Delete failed', false);
+  } catch(e) { showArtAlert('Server error', false); }
+  _deleteArtId = null;
+}
+
+function showArtAlert(msg, ok) {
+  const el = document.getElementById('artAlert');
+  el.textContent = msg;
+  el.className = `admin-alert show ${ok ? 'ok' : 'err'}`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ════════════════════════════════════════════════
+   CONSULTATIONS
+════════════════════════════════════════════════ */
+let consultFilter = '', consultPage = 0, consultTotal = 0;
+const CONSULT_LIMIT = 10;
+
+function setConsultFilter(f, btn) {
+  consultFilter = f; consultPage = 0;
+  document.querySelectorAll('#pageConsultations .section-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadConsultations();
+}
+
+async function loadConsultations() {
+  const offset = consultPage * CONSULT_LIMIT;
+  const url = `api_consultation.php?action=list&limit=${CONSULT_LIMIT}&offset=${offset}${consultFilter ? '&status=' + consultFilter : ''}`;
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+    consultTotal = data.total || 0;
+    renderConsultations(data.consultations || []);
+    renderConsultPagination();
+  } catch(e) {
+    document.getElementById('consultTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef9a9a;padding:24px;">Failed to load.</td></tr>`;
+  }
+}
+
+function renderConsultations(list) {
+  const tbody = document.getElementById('consultTableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No consultations found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td style="font-weight:600;font-size:.84rem;">${esc(c.name)}</td>
+      <td style="font-size:.8rem;color:var(--text-muted);">${esc(c.email)}</td>
+      <td style="font-size:.8rem;">${esc(c.service_type)}</td>
+      <td style="font-size:.78rem;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(c.details)}">${esc(c.details)}</td>
+      <td><span class="badge-pill badge-${c.status}">${c.status}</span></td>
+      <td style="font-size:.75rem;color:var(--text-muted);white-space:nowrap;">${c.booked_on}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn-sm-act btn-view" onclick="viewConsultation(${c.id})"><i class="bi bi-eye"></i></button>
+        <select class="admin-input ms-1" style="width:110px;padding:4px 8px;font-size:.74rem;" onchange="updateConsultStatus(${c.id},this.value,this)">
+          <option value="pending"   ${c.status==='pending'   ?'selected':''}>Pending</option>
+          <option value="confirmed" ${c.status==='confirmed' ?'selected':''}>Confirmed</option>
+          <option value="completed" ${c.status==='completed' ?'selected':''}>Completed</option>
+          <option value="cancelled" ${c.status==='cancelled' ?'selected':''}>Cancelled</option>
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+async function viewConsultation(id) {
+  // Load details - we already have from list, just find from DOM (re-fetch for full details)
+  document.getElementById('detailModalTitle').textContent = 'Consultation Details';
+  document.getElementById('detailModalBody').innerHTML = '<div style="color:var(--text-muted);">Loading...</div>';
+  document.getElementById('detailModal').classList.add('open');
+  try {
+    const res  = await fetch(`api_consultation.php?action=list&limit=100`);
+    const data = await res.json();
+    const c = (data.consultations || []).find(x => x.id == id);
+    if (!c) { document.getElementById('detailModalBody').innerHTML = 'Not found.'; return; }
+    document.getElementById('detailModalBody').innerHTML = `
+      <div class="row g-3">
+        <div class="col-sm-6"><label class="admin-label">Name</label><div style="font-size:.88rem;color:#e2e8f0;">${esc(c.name)}</div></div>
+        <div class="col-sm-6"><label class="admin-label">Email</label><div style="font-size:.88rem;"><a href="mailto:${esc(c.email)}" style="color:var(--primary);">${esc(c.email)}</a></div></div>
+        <div class="col-sm-6"><label class="admin-label">Phone</label><div style="font-size:.88rem;color:#e2e8f0;">${esc(c.phone||'—')}</div></div>
+        <div class="col-sm-6"><label class="admin-label">Service</label><div style="font-size:.88rem;color:#e2e8f0;">${esc(c.service_type)}</div></div>
+        <div class="col-12"><label class="admin-label">Status</label>
+          <div>
+            <span class="badge-pill badge-${c.status} mb-2">${c.status}</span>
+            <div class="d-flex gap-2 mt-2 flex-wrap">
+              ${['pending','confirmed','completed','cancelled'].map(s=>`<button class="btn-sm-act ${c.status===s?'btn-edit':'btn-view'}" onclick="updateConsultStatus(${c.id},'${s}',null)">${s}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="col-12"><label class="admin-label">Message / Goals</label><div style="font-size:.86rem;color:var(--text-muted);line-height:1.7;background:rgba(255,255,255,.03);padding:14px;border-radius:10px;border:1px solid var(--border);">${esc(c.details||'—')}</div></div>
+        <div class="col-12"><label class="admin-label">Booked On</label><div style="font-size:.82rem;color:var(--text-muted);">${c.booked_on}</div></div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('detailModalBody').innerHTML = '<div style="color:#ef9a9a;">Error loading details.</div>';
+  }
+}
+
+async function updateConsultStatus(id, status, selectEl) {
+  try {
+    const res  = await fetch(`api_consultation.php?action=status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    });
+    const data = await res.json();
+    if (data.success) loadConsultations();
+    else alert(data.message);
+  } catch(e) { alert('Error updating status'); }
+}
+
+function renderConsultPagination() {
+  const pages = Math.ceil(consultTotal / CONSULT_LIMIT);
+  const pg = document.getElementById('consultPagination');
+  if (pages <= 1) { pg.innerHTML = ''; return; }
+  pg.innerHTML = `
+    <button class="pg-btn" onclick="consultPage--;loadConsultations()" ${consultPage===0?'disabled':''}><i class="bi bi-chevron-left"></i></button>
+    <span class="pg-info">Page ${consultPage+1}/${pages} (${consultTotal})</span>
+    <button class="pg-btn" onclick="consultPage++;loadConsultations()" ${consultPage>=pages-1?'disabled':''}><i class="bi bi-chevron-right"></i></button>`;
+}
+
+/* ════════════════════════════════════════════════
+   CONTACT MESSAGES
+════════════════════════════════════════════════ */
+let msgFilter = '', msgPage = 0, msgTotal = 0;
+const MSG_LIMIT = 10;
+
+function setMsgFilter(f, btn) {
+  msgFilter = f; msgPage = 0;
+  document.querySelectorAll('#pageContacts .section-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadMessages();
+}
+
+async function loadMessages() {
+  const offset = msgPage * MSG_LIMIT;
+  const url = `api_contact.php?action=list&limit=${MSG_LIMIT}&offset=${offset}${msgFilter ? '&status=' + msgFilter : ''}`;
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+    msgTotal = data.total || 0;
+    renderMessages(data.messages || []);
+    renderMsgPagination();
+  } catch(e) {
+    document.getElementById('msgTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef9a9a;padding:24px;">Failed to load.</td></tr>`;
+  }
+}
+
+function renderMessages(list) {
+  const tbody = document.getElementById('msgTableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No messages found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(m => `
+    <tr>
+      <td style="font-weight:600;font-size:.84rem;">${esc(m.name)}</td>
+      <td style="font-size:.8rem;color:var(--text-muted);">${esc(m.email)}</td>
+      <td style="font-size:.8rem;">${esc(m.subject)}</td>
+      <td style="font-size:.78rem;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.message_preview)}</td>
+      <td><span class="badge-pill badge-${m.status}">${m.status}</span></td>
+      <td style="font-size:.75rem;color:var(--text-muted);white-space:nowrap;">${m.date}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn-sm-act btn-view" onclick="viewMessage(${m.id})"><i class="bi bi-eye"></i> View</button>
+        <button class="btn-sm-act btn-edit ms-1" onclick="updateMsgStatus(${m.id},'replied')"><i class="bi bi-check-lg"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+async function viewMessage(id) {
+  document.getElementById('detailModalTitle').textContent = 'Message Details';
+  document.getElementById('detailModalBody').innerHTML = '<div style="color:var(--text-muted);">Loading...</div>';
+  document.getElementById('detailModal').classList.add('open');
+  try {
+    const res  = await fetch(`api_contact.php?action=get&id=${id}`);
+    const data = await res.json();
+    if (!data.success) { document.getElementById('detailModalBody').innerHTML = 'Not found.'; return; }
+    const m = data.message;
+    document.getElementById('detailModalBody').innerHTML = `
+      <div class="row g-3">
+        <div class="col-sm-6"><label class="admin-label">Name</label><div style="font-size:.88rem;color:#e2e8f0;">${esc(m.name)}</div></div>
+        <div class="col-sm-6"><label class="admin-label">Email</label><div><a href="mailto:${esc(m.email)}" style="color:var(--primary);font-size:.88rem;">${esc(m.email)}</a></div></div>
+        <div class="col-12"><label class="admin-label">Subject</label><div style="font-size:.88rem;color:#e2e8f0;">${esc(m.subject)}</div></div>
+        <div class="col-12"><label class="admin-label">Status</label>
+          <div class="d-flex gap-2 mt-1 flex-wrap">
+            ${['new','read','replied'].map(s=>`<button class="btn-sm-act ${m.status===s?'btn-edit':'btn-view'}" onclick="updateMsgStatus(${m.id},'${s}')">${s}</button>`).join('')}
+          </div>
+        </div>
+        <div class="col-12"><label class="admin-label">Message</label>
+          <div style="font-size:.86rem;color:var(--text-muted);line-height:1.8;background:rgba(255,255,255,.03);padding:14px;border-radius:10px;border:1px solid var(--border);">${esc(m.message)}</div>
+        </div>
+        <div class="col-12"><div style="display:flex;gap:8px;"><a href="mailto:${esc(m.email)}?subject=Re: ${esc(m.subject)}" class="btn-primary-gold" style="text-decoration:none;font-size:.82rem;padding:9px 18px;"><i class="bi bi-envelope"></i> Reply via Email</a></div></div>
+        <div class="col-12"><label class="admin-label">Received</label><div style="font-size:.8rem;color:var(--text-muted);">${m.date}</div></div>
+      </div>`;
+    loadMessages(); // refresh status badge
+  } catch(e) {
+    document.getElementById('detailModalBody').innerHTML = '<div style="color:#ef9a9a;">Error.</div>';
+  }
+}
+
+async function updateMsgStatus(id, status) {
+  try {
+    await fetch(`api_contact.php?action=status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    });
+    loadMessages();
+    // refresh detail if open
+    const modal = document.getElementById('detailModal');
+    if (modal.classList.contains('open')) viewMessage(id);
+  } catch(e) {}
+}
+
+function renderMsgPagination() {
+  const pages = Math.ceil(msgTotal / MSG_LIMIT);
+  const pg = document.getElementById('msgPagination');
+  if (pages <= 1) { pg.innerHTML = ''; return; }
+  pg.innerHTML = `
+    <button class="pg-btn" onclick="msgPage--;loadMessages()" ${msgPage===0?'disabled':''}><i class="bi bi-chevron-left"></i></button>
+    <span class="pg-info">Page ${msgPage+1}/${pages} (${msgTotal})</span>
+    <button class="pg-btn" onclick="msgPage++;loadMessages()" ${msgPage>=pages-1?'disabled':''}><i class="bi bi-chevron-right"></i></button>`;
+}
+
+/* ── Detail modal close ── */
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+/* ════════════════════════════════════════════════
+   WORKSHOPS
+════════════════════════════════════════════════ */
+async function loadWorkshops() {
+  try {
+    const res  = await fetch('api_workshops.php?action=list');
+    const data = await res.json();
+    renderWorkshops(data.workshops || []);
+  } catch(e) {
+    document.getElementById('workshopGrid').innerHTML = '<div style="color:#ef9a9a;padding:24px;">Failed to load workshops.</div>';
+  }
+}
+
+function renderWorkshops(list) {
+  const grid = document.getElementById('workshopGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div style="color:var(--text-muted);padding:40px;text-align:center;width:100%;"><i class="bi bi-calendar-x" style="font-size:2rem;display:block;margin-bottom:12px;"></i>No workshops yet. Click "Add Workshop" to create one.</div>';
+    return;
+  }
+  const statusColors = {upcoming:'#FFA726',ongoing:'#66BB6A',completed:'#90CAF9',cancelled:'#ef5350'};
+  grid.innerHTML = list.map(w => `
+    <div class="col-md-6 col-lg-4">
+      <div class="glass-card p-3 h-100">
+        <div style="height:80px;border-radius:10px;background:${esc(w.color)};display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:14px;">${esc(w.icon)}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:.68rem;font-weight:700;color:${statusColors[w.status]||'#FFA726'};background:rgba(255,255,255,.06);padding:3px 10px;border-radius:20px;border:1px solid ${statusColors[w.status]||'#FFA726'}33;">${w.status.toUpperCase()}</span>
+          <span style="font-size:.72rem;color:var(--text-muted);">${esc(w.mode)}</span>
+        </div>
+        <div style="font-weight:700;font-size:.95rem;color:#fff;margin-bottom:6px;line-height:1.3;">${esc(w.title)}</div>
+        <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">${esc(w.description||'').slice(0,80)}${(w.description||'').length>80?'...':''}</div>
+        <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:4px;"><i class="bi bi-calendar3"></i> ${esc(w.date_formatted)} &nbsp; <i class="bi bi-clock"></i> ${esc(w.time_formatted)}</div>
+        <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:14px;"><i class="bi bi-people"></i> ${w.seats||0} seats &nbsp; <i class="bi bi-tag"></i> ${esc(w.price)}</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sm-act btn-edit" onclick="editWorkshop(${w.id})"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn-sm-act btn-delete" onclick="deleteWorkshop(${w.id},'${esc(w.title).replace(/'/g,"\\'")}')"><i class="bi bi-trash"></i></button>
+          ${w.register_link ? `<a href="${esc(w.register_link)}" target="_blank" class="btn-sm-act btn-view"><i class="bi bi-box-arrow-up-right"></i></a>` : ''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openWorkshopModal(data = null) {
+  document.getElementById('editWorkshopId').value = '';
+  document.getElementById('workshopModalTitle').textContent = 'Add Workshop';
+  document.getElementById('wsTitle').value   = '';
+  document.getElementById('wsDate').value    = '';
+  document.getElementById('wsTime').value    = '10:00';
+  document.getElementById('wsMode').value    = 'Online';
+  document.getElementById('wsPrice').value   = 'Free';
+  document.getElementById('wsSeats').value   = '';
+  document.getElementById('wsIcon').value    = '🎓';
+  document.getElementById('wsStatus').value  = 'upcoming';
+  document.getElementById('wsColor').value   = 'linear-gradient(135deg,#90CAF9,#1565c0)';
+  document.getElementById('wsRegLink').value = '';
+  document.getElementById('wsDesc').value    = '';
+  document.getElementById('wsModalAlert').className = 'admin-alert';
+  if (data) {
+    document.getElementById('editWorkshopId').value = data.id;
+    document.getElementById('workshopModalTitle').textContent = 'Edit Workshop';
+    document.getElementById('wsTitle').value   = data.title        || '';
+    document.getElementById('wsDate').value    = data.workshop_date|| '';
+    document.getElementById('wsTime').value    = (data.workshop_time||'10:00').slice(0,5);
+    document.getElementById('wsMode').value    = data.mode         || 'Online';
+    document.getElementById('wsPrice').value   = data.price        || 'Free';
+    document.getElementById('wsSeats').value   = data.seats        || '';
+    document.getElementById('wsIcon').value    = data.icon         || '🎓';
+    document.getElementById('wsStatus').value  = data.status       || 'upcoming';
+    document.getElementById('wsColor').value   = data.color        || 'linear-gradient(135deg,#90CAF9,#1565c0)';
+    document.getElementById('wsRegLink').value = data.register_link|| '';
+    document.getElementById('wsDesc').value    = data.description  || '';
+  }
+  document.getElementById('workshopModal').classList.add('open');
+}
+
+function closeWorkshopModal() {
+  document.getElementById('workshopModal').classList.remove('open');
+}
+
+async function editWorkshop(id) {
+  try {
+    const res  = await fetch(`api_workshops.php?action=get&id=${id}`);
+    const data = await res.json();
+    if (data.success) openWorkshopModal(data.workshop);
+    else alert('Could not load workshop.');
+  } catch(e) { alert('Server error'); }
+}
+
+async function saveWorkshop() {
+  const id      = document.getElementById('editWorkshopId').value;
+  const title   = document.getElementById('wsTitle').value.trim();
+  const date    = document.getElementById('wsDate').value;
+  const time    = document.getElementById('wsTime').value || '10:00';
+  const mode    = document.getElementById('wsMode').value;
+  const price   = document.getElementById('wsPrice').value.trim() || 'Free';
+  const seats   = parseInt(document.getElementById('wsSeats').value) || 0;
+  const icon    = document.getElementById('wsIcon').value.trim() || '🎓';
+  const status  = document.getElementById('wsStatus').value;
+  const color   = document.getElementById('wsColor').value;
+  const regLink = document.getElementById('wsRegLink').value.trim();
+  const desc    = document.getElementById('wsDesc').value.trim();
+
+  const alertEl = document.getElementById('wsModalAlert');
+  function wsAlert(msg, ok) {
+    alertEl.textContent = msg;
+    alertEl.className = `admin-alert show ${ok ? 'ok' : 'err'}`;
+  }
+
+  if (!title) return wsAlert('Title is required', false);
+  if (!date)  return wsAlert('Date is required', false);
+
+  const btn = document.getElementById('wsSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+
+  const payload = { title, description: desc, workshop_date: date, workshop_time: time+':00',
+                    mode, price, seats, icon, color, register_link: regLink, status };
+  if (id) payload.id = parseInt(id);
+
+  try {
+    const url = id ? 'api_workshops.php?action=update' : 'api_workshops.php?action=create';
+    const res  = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      wsAlert(data.message, true);
+      setTimeout(() => { closeWorkshopModal(); loadWorkshops(); }, 1000);
+    } else {
+      wsAlert(data.message || 'Error', false);
+    }
+  } catch(e) {
+    wsAlert('Server error: ' + e.message, false);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Save Workshop';
+  }
+}
+
+async function deleteWorkshop(id, title) {
+  if (!confirm(`Delete workshop "${title}"?`)) return;
+  try {
+    const res  = await fetch('api_workshops.php?action=delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      loadWorkshops();
+      const al = document.getElementById('workshopAlert');
+      al.textContent = 'Workshop deleted!';
+      al.className = 'admin-alert show ok';
+      setTimeout(() => al.className = 'admin-alert', 2000);
+    } else {
+      alert(data.message || 'Delete failed');
+    }
+  } catch(e) { alert('Server error'); }
+}
+
+/* ── ESC key closes modals ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeWorkshopModal();
+  }
+});
+
+/* ── Util: escape HTML ── */
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

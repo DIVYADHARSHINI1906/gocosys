@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog – GOCOSYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="blog_style.css"/>
+  <style>
+  /* ── AUTH MODAL ─────────────────────────────────── */
+  .auth-overlay{position:fixed;inset:0;z-index:5000;background:rgba(5,6,15,.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+  .auth-overlay.open{opacity:1;pointer-events:all;}
+  .auth-modal{width:100%;max-width:440px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:24px;backdrop-filter:blur(30px);box-shadow:0 40px 100px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);position:relative;overflow:hidden;transform:translateY(30px) scale(.96);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+  .auth-overlay.open .auth-modal{transform:translateY(0) scale(1);}
+  .auth-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c8942a,#90CAF9,transparent);}
+  .auth-modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#8892a4;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .2s;z-index:2;}
+  .auth-modal-close:hover{background:rgba(239,83,80,.15);color:#ef5350;border-color:rgba(239,83,80,.3);}
+  .auth-modal-body{padding:34px 30px 30px;}
+  .auth-tabs{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:4px;margin-bottom:26px;}
+  .auth-tab-btn{flex:1;padding:9px 0;border:none;border-radius:9px;background:transparent;color:#8892a4;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .auth-tab-btn.active{background:linear-gradient(135deg,rgba(200,148,42,.22),rgba(144,202,249,.12));color:#fff;box-shadow:0 2px 12px rgba(200,148,42,.18);}
+  .auth-modal-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:4px;}
+  .auth-modal-sub{font-size:.82rem;color:#8892a4;margin-bottom:22px;line-height:1.6;}
+  .auth-alert{padding:10px 14px;border-radius:10px;font-size:.82rem;margin-bottom:14px;display:none;align-items:center;gap:8px;line-height:1.5;}
+  .auth-alert.error{background:rgba(239,83,80,.1);border:1px solid rgba(239,83,80,.25);color:#ef9a9a;}
+  .auth-alert.success{background:rgba(102,187,106,.1);border:1px solid rgba(102,187,106,.25);color:#a5d6a7;}
+  .auth-alert.show{display:flex;}
+  .auth-field{margin-bottom:14px;}
+  .auth-field label{display:block;font-size:.74rem;font-weight:600;color:#c8d8e8;margin-bottom:6px;letter-spacing:.4px;}
+  .auth-input-wrap{position:relative;}
+  .auth-input-wrap .fi{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#8892a4;font-size:.95rem;pointer-events:none;transition:color .2s;}
+  .auth-input-wrap:focus-within .fi{color:#c8942a;}
+  .auth-field input{width:100%;padding:11px 13px 11px 40px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:12px;color:#e2e8f0;font-family:'DM Sans',sans-serif;font-size:.88rem;transition:all .25s;outline:none;}
+  .auth-field input:focus{border-color:rgba(200,148,42,.45);background:rgba(200,148,42,.05);box-shadow:0 0 0 3px rgba(200,148,42,.1);}
+  .auth-field input::placeholder{color:#8892a4;}
+  .atp{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8892a4;cursor:pointer;font-size:.95rem;transition:color .2s;padding:0;}
+  .atp:hover{color:#c8942a;}
+  .auth-ferr{font-size:.72rem;color:#ef5350;margin-top:4px;display:none;}
+  .str-bar{height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:6px 0 3px;}
+  .str-fill{height:100%;width:0;border-radius:3px;transition:all .3s;}
+  .str-lbl{font-size:.7rem;color:#8892a4;}
+  .auth-submit-btn{width:100%;padding:13px;background:linear-gradient(135deg,#c8942a,#e8a730);border:none;border-radius:12px;color:#000;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+  .auth-submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(200,148,42,.45);}
+  .auth-submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .asp{width:15px;height:15px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:aSpin .6s linear infinite;display:none;}
+  @keyframes aSpin{to{transform:rotate(360deg)}}
+  .auth-switch-txt{text-align:center;font-size:.81rem;color:#8892a4;margin-top:16px;}
+  .auth-switch-txt a{color:#c8942a;text-decoration:none;font-weight:600;cursor:pointer;}
+  .auth-panel{display:none;}
+  .auth-panel.active{display:block;}
+  /* Navbar user chip */
+  .nav-user-wrap{position:relative;}
+  .nav-user-btn{display:flex;align-items:center;gap:7px;background:rgba(200,148,42,.1);border:1px solid rgba(200,148,42,.25);border-radius:50px;padding:4px 11px 4px 4px;cursor:pointer;transition:all .25s;}
+  .nav-user-btn:hover{background:rgba(200,148,42,.18);box-shadow:0 0 16px rgba(200,148,42,.2);}
+  .nav-uav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .nav-uname{font-size:.78rem;color:#e2e8f0;font-weight:500;max-width:75px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nav-uchev{font-size:.62rem;color:#8892a4;transition:transform .25s;}
+  .nav-user-btn.open .nav-uchev{transform:rotate(180deg);}
+  .nav-user-dd{position:absolute;top:calc(100% + 10px);right:0;min-width:185px;background:rgba(8,10,25,.97);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:8px;backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.6);display:none;z-index:2000;animation:ddIn .2s ease both;}
+  .nav-user-dd.open{display:block;}
+  @keyframes ddIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .dd-head{padding:10px 12px 12px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:6px;}
+  .dd-name{font-size:.87rem;font-weight:700;color:#fff;}
+  .dd-email{font-size:.71rem;color:#8892a4;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dd-role{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-top:6px;}
+  .role-user{background:rgba(144,202,249,.12);color:#90CAF9;border:1px solid rgba(144,202,249,.2);}
+  .role-admin{background:rgba(200,148,42,.15);color:#c8942a;border:1px solid rgba(200,148,42,.3);}
+  .dd-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;color:#8892a4;font-size:.83rem;cursor:pointer;transition:all .2s;text-decoration:none;background:none;border:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;}
+  .dd-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+  .dd-item.danger:hover{background:rgba(239,83,80,.1);color:#ef5350;}
+  /* Toast */
+  .login-toast{position:fixed;bottom:26px;right:26px;z-index:6000;background:rgba(8,10,25,.97);border:1px solid rgba(200,148,42,.3);border-radius:16px;padding:16px 18px;max-width:280px;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:toastIn .3s ease both;display:none;}
+  @keyframes toastIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  .toast-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .toast-head span{font-size:.86rem;font-weight:700;color:#fff;flex:1;}
+  .toast-close{background:none;border:none;color:#8892a4;cursor:pointer;font-size:1rem;padding:0;}
+  .login-toast p{font-size:.79rem;color:#8892a4;line-height:1.5;margin-bottom:12px;}
+  .toast-btns{display:flex;gap:7px;}
+  .toast-btns button{flex:1;padding:8px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:700;cursor:pointer;transition:all .2s;border:none;}
+  .tbtn-l{background:linear-gradient(135deg,#c8942a,#e8a730);color:#000;}
+  .tbtn-r{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)!important;color:#e2e8f0;}
+  .tbtn-l:hover{box-shadow:0 4px 14px rgba(200,148,42,.4);}
+  .tbtn-r:hover{background:rgba(255,255,255,.12);}
+  </style>
+</head>
+<body>
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+  <div class="page-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+  <div class="particles" id="particles"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar-custom">
+    <a href="index.html" class="brand-logo">
+      <img src="image/gocosys.png" alt="" class="logo-img">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#home">Home</a></li>
+      <li><a href="index.html#about">About Us</a></li>
+      <li><a href="index.html#zen">Services</a></li>
+      <li><a href="blog.html" class="nav-cta active-nav">Blog</a></li>
+      <li><a href="index.html#workshop">Workshop</a></li>
+      <li><a href="index.html#testimonial">Testimonials</a></li>
+      <li><a href="index.html#faq">FAQ</a></li>
+      <li><a href="index.html#contact" class="nav-cta">Contact Us</a></li>
+      <!-- JS இந்த இடத்தில் Login/User chip inject பண்ணும் -->
+    </ul>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="blog-hero">
+    <div class="hero-noise"></div>
+    <div class="container">
+      <div class="blog-hero-inner">
+        <span class="section-tag"><i class="bi bi-stars"></i> Knowledge Hub</span>
+        <h1 class="blog-hero-title">
+          Our Latest<br>
+          <span class="accent">Insights &amp;</span>
+          <span class="outline">Articles</span>
+        </h1>
+        <p class="blog-hero-desc">
+          Stay ahead with expert articles on web development, AI, digital marketing,
+          and the future of technology — curated by the GOCOSYS team.
+        </p>
+        <div class="blog-search-wrap">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="searchInput" class="blog-search" placeholder="Search articles..."/>
+          <button class="search-clear" id="searchClear"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER TABS -->
+  <section class="filter-section">
+    <div class="container">
+      <div class="filter-wrap">
+        <button class="filter-btn active" data-filter="all">All Posts</button>
+        <button class="filter-btn" data-filter="web">Web Dev</button>
+        <button class="filter-btn" data-filter="ai">AI &amp; ML</button>
+        <button class="filter-btn" data-filter="seo">SEO</button>
+        <button class="filter-btn" data-filter="marketing">Marketing</button>
+        <button class="filter-btn" data-filter="career">Career</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED POST -->
+  <section class="featured-section" id="featuredSection">
+    <div class="container">
+      <span class="section-tag"><i class="bi bi-fire"></i> Featured Article</span>
+      <div id="featuredCard"></div>
+    </div>
+  </section>
+
+  <!-- BLOG GRID -->
+  <section class="blog-grid-section">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h3 class="grid-heading">All Articles</h3>
+        <span class="post-count" id="postCount"></span>
+      </div>
+      <div class="row g-4" id="blogGrid"></div>
+      <div class="no-results" id="noResults" style="display:none">
+        <i class="bi bi-search" style="font-size:2.5rem;color:var(--text-muted);"></i>
+        <p>No articles found. Try a different keyword or filter.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-card glass-card reveal">
+        <div class="newsletter-glow"></div>
+        <div class="row align-items-center g-4">
+          <div class="col-lg-6">
+            <span class="section-tag"><i class="bi bi-envelope-heart-fill"></i> Stay Updated</span>
+            <h3 class="newsletter-title">Never Miss an <span class="accent">Article</span></h3>
+            <p class="newsletter-desc">Get the latest tech insights, career tips, and workshops straight to your inbox every week.</p>
+          </div>
+          <div class="col-lg-6">
+            <div class="newsletter-form">
+              <input type="email" class="newsletter-input" id="nlEmail" placeholder="Your email address..."/>
+              <button class="btn-book newsletter-btn" id="nlBtn"><i class="bi bi-send-fill"></i> Subscribe</button>
+            </div>
+            <p class="newsletter-note"><i class="bi bi-shield-check"></i> No spam, ever. Unsubscribe anytime.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-4">
+           <img src="./image/gocosys.png" alt="GOCOSYS Logo" 
+     style="height:55px;width:auto;margin-bottom:14px;display:block;
+            filter:brightness(1.2) drop-shadow(0 0 8px rgba(200,148,42,0.3));"/>
+          <p style="max-width:300px;font-size:.88rem;color:#8892a4;">Crafting Digital Excellence for your business</p>
+          <div class="mt-4">
+            <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="social-btn"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-heading">Company</div>
+          <ul class="footer-links">
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#zen">Services</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-heading">Categories</div>
+          <ul class="footer-links">
+            <li><a href="#">Web Dev</a></li>
+            <li><a href="#">AI &amp; ML</a></li>
+            <li><a href="#">SEO</a></li>
+            <li><a href="#">Career</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4">
+          <div class="footer-heading">Newsletter</div>
+          <p style="font-size:.84rem;margin-bottom:16px;color:#8892a4;">Latest articles and insights in your inbox.</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <input type="email" class="contact-input flex-grow-1" placeholder="Your email" style="min-width:160px;"/>
+            <button class="btn-book" style="padding:12px 22px;font-size:.82rem;">Subscribe</button>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <span>© 2022 GOCOSYS. All rights reserved | Designed by Divyadharshini Bharaniraj</span>
+        <span style="display:flex;gap:20px;">
+          <a href="#" style="color:#8892a4;text-decoration:none;font-size:.78rem;">Privacy Policy</a>
+          <a href="#" style="color:#8892a4;text-decoration:none;font-size:.78rem;">Terms of Service</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════
+       AUTH MODAL — Login / Register
+  ═══════════════════════════════════════════════ -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-modal">
+      <button class="auth-modal-close" id="authClose"><i class="bi bi-x-lg"></i></button>
+      <div class="auth-modal-body">
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="tabLogin" onclick="switchTab('login')">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </button>
+          <button class="auth-tab-btn" id="tabReg" onclick="switchTab('register')">
+            <i class="bi bi-person-plus"></i> Register
+          </button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="auth-panel active" id="loginPanel">
+          <div class="auth-modal-title">Welcome back 👋</div>
+          <div class="auth-modal-sub">Sign in to your GOCOSYS account</div>
+          <div class="auth-alert error" id="lErr"><i class="bi bi-exclamation-circle-fill"></i><span id="lErrMsg"></span></div>
+          <div class="auth-alert success" id="lOk"><i class="bi bi-check-circle-fill"></i><span id="lOkMsg"></span></div>
+          <div class="auth-field">
+            <label>Email Address</label>
+            <div class="auth-input-wrap">
+              <input type="email" id="lEmail" placeholder="you@example.com" autocomplete="email"/>
+              <i class="bi bi-envelope-fill fi"></i>
+            </div>
+            <div class="auth-ferr" id="lEmailErr">Valid email required</div>
+          </div>
+          <div class="auth-field">
+            <label>Password</label>
+            <div class="auth-input-wrap">
+              <input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password"/>
+              <i class="bi bi-lock-fill fi"></i>
+              <button class="atp" onclick="togglePass('lPass',this)"><i class="bi bi-eye"></i></button>
+            </div>
+            <div class="auth-ferr" id="lPassErr">Password required</div>
+          </div>
+          <button class="auth-submit-btn" id="lBtn" onclick="doLogin()">
+            <div class="asp" id="lSp"></div>
+            <i class="bi bi-box-arrow-in-right" id="lIc"></i> Sign In
+          </button>
+          <div class="auth-switch-txt">No account? <a onclick="switchTab('register')">Create one</a></div>
+        </div>
+
+        <!-- REGISTER -->
+        <div class="auth-panel" id="regPanel">
+          <div class="auth-modal-title">Create Account ✨</div>
+          <div class="auth-modal-sub">Join GOCOSYS — it's free</div>
+          <div class="auth-alert error" id="rErr"><i class="bi bi-exclamation-circle-fill"></i><span id="rErrMsg"></span></div>
+          <div class="auth-alert success" id="rOk"><i class="bi bi-check-circle-fill"></i><span id="rOkMsg"></span></div>
+          <div class="auth-field">
+            <label>Full Name</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="rName" placeholder="Rahul Kumar" autocomplete="name"/>
+              <i class="bi bi-person-fill fi"></i>
+            </div>
+            <div class="auth-ferr" id="rNameErr">Name required</div>
+          </div>
+          <div class="auth-field">
+            <label>Email Address</label>
+            <div class="auth-input-wrap">
+              <input type="email" id="rEmail" placeholder="you@example.com" autocomplete="email"/>
+              <i class="bi bi-envelope-fill fi"></i>
+            </div>
+            <div class="auth-ferr" id="rEmailErr">Valid email required</div>
+          </div>
+          <div class="auth-field">
+            <label>Password</label>
+            <div class="auth-input-wrap">
+              <input type="password" id="rPass" placeholder="Min. 6 characters" autocomplete="new-password" oninput="checkStr(this.value)"/>
+              <i class="bi bi-lock-fill fi"></i>
+              <button class="atp" onclick="togglePass('rPass',this)"><i class="bi bi-eye"></i></button>
+            </div>
+            <div class="str-bar"><div class="str-fill" id="strFill"></div></div>
+            <div class="str-lbl" id="strLbl"></div>
+            <div class="auth-ferr" id="rPassErr">Min. 6 characters</div>
+          </div>
+          <button class="auth-submit-btn" id="rBtn" onclick="doRegister()">
+            <div class="asp" id="rSp"></div>
+            <i class="bi bi-person-check-fill" id="rIc"></i> Create Account
+          </button>
+          <div class="auth-switch-txt">Have account? <a onclick="switchTab('login')">Sign in</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN PROMPT TOAST -->
+  <div class="login-toast" id="loginToast">
+    <div class="toast-head">
+      <i class="bi bi-lock-fill" style="color:#c8942a;font-size:.95rem;"></i>
+      <span>Login Required</span>
+      <button class="toast-close" onclick="document.getElementById('loginToast').style.display='none'"><i class="bi bi-x"></i></button>
+    </div>
+    <p id="toastMsg">Please login to perform this action.</p>
+    <div class="toast-btns">
+      <button class="tbtn-l" onclick="openModal('login');document.getElementById('loginToast').style.display='none'">Login</button>
+      <button class="tbtn-r" onclick="openModal('register');document.getElementById('loginToast').style.display='none'">Register</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="article_data.js"></script>
+
+  <script>
+  /* ═══════════════════════════════════════════════
+     AUTH SYSTEM
+  ═══════════════════════════════════════════════ */
+  let _user = null;
+
+  /* ── Modal open/close ── */
+  function openModal(tab='login'){
+    document.getElementById('authOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    switchTab(tab); clearAlerts();
+  }
+  function closeModal(){
+    document.getElementById('authOverlay').classList.remove('open');
+    document.body.style.overflow='';
+  }
+  document.getElementById('authClose').onclick = closeModal;
+  document.getElementById('authOverlay').addEventListener('click', e=>{ if(e.target.id==='authOverlay') closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); if(e.key==='Enter'&&document.getElementById('authOverlay').classList.contains('open')){ if(document.getElementById('loginPanel').classList.contains('active')) doLogin(); else doRegister(); }});
+
+  /* ── Tab switch ── */
+  function switchTab(tab){
+    ['login','register'].forEach(t=>{
+      document.getElementById(t==='login'?'loginPanel':'regPanel').classList.toggle('active',t===tab);
+      document.getElementById(t==='login'?'tabLogin':'tabReg').classList.toggle('active',t===tab);
+    });
+    clearAlerts();
+  }
+
+  /* ── Helpers ── */
+  function togglePass(id,btn){ const i=document.getElementById(id),ic=btn.querySelector('i'); if(i.type==='password'){i.type='text';ic.className='bi bi-eye-slash';}else{i.type='password';ic.className='bi bi-eye';} }
+  function checkStr(v){ const f=document.getElementById('strFill'),l=document.getElementById('strLbl');if(!f||!l)return;let s=0;if(v.length>=6)s++;if(v.length>=10)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;const lvl=[{w:'0%',c:'transparent',t:''},{w:'25%',c:'#ef5350',t:'Weak'},{w:'50%',c:'#FFA726',t:'Fair'},{w:'75%',c:'#29B6F6',t:'Good'},{w:'100%',c:'#66BB6A',t:'Strong'}][Math.min(s,4)];f.style.width=lvl.w;f.style.background=lvl.c;l.textContent=lvl.t;l.style.color=lvl.c; }
+  function showAlert(id,msg,ok){ const e=document.getElementById(id),m=document.getElementById(id+(ok?'Msg':'Msg')); ['lErr','lOk','rErr','rOk'].forEach(x=>{const el=document.getElementById(x);if(el)el.classList.remove('show');}); const target=document.getElementById(id); if(target){document.getElementById(id.replace('lErr','lErrMsg').replace('lOk','lOkMsg').replace('rErr','rErrMsg').replace('rOk','rOkMsg')||id+'Msg').textContent=msg;target.classList.add('show');} }
+  function clearAlerts(){ ['lErr','lOk','rErr','rOk'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');}); ['lEmailErr','lPassErr','rNameErr','rEmailErr','rPassErr'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';}); }
+  function setLoad(pre,on){ const b=document.getElementById(pre+'Btn'||pre+'btn'),sp=document.getElementById(pre+'Sp'),ic=document.getElementById(pre+'Ic'); if(b)b.disabled=on;if(sp)sp.style.display=on?'block':'none';if(ic)ic.style.display=on?'none':''; }
+
+  /* ── LOGIN ── */
+  async function doLogin(){
+    clearAlerts();
+    const email=document.getElementById('lEmail').value.trim(), pass=document.getElementById('lPass').value;
+    let ok=true;
+    if(!email||!email.includes('@')){document.getElementById('lEmailErr').style.display='block';ok=false;}
+    if(!pass){document.getElementById('lPassErr').style.display='block';ok=false;}
+    if(!ok) return;
+    document.getElementById('lBtn').disabled=true; document.getElementById('lSp').style.display='block'; document.getElementById('lIc').style.display='none';
+    try{
+      const res=await fetch('login.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
+      const d=await res.json();
+      if(d.success){ localStorage.setItem('gocosys_user',JSON.stringify(d.user)); document.getElementById('lOk').classList.add('show'); document.getElementById('lOkMsg').textContent='✓ Login successful!'; setTimeout(()=>{ closeModal(); renderNavUser(d.user); },900); }
+      else{ document.getElementById('lErr').classList.add('show'); document.getElementById('lErrMsg').textContent=d.message; }
+    }catch(e){ document.getElementById('lErr').classList.add('show'); document.getElementById('lErrMsg').textContent='Server error. Is XAMPP running?'; }
+    document.getElementById('lBtn').disabled=false; document.getElementById('lSp').style.display='none'; document.getElementById('lIc').style.display='';
+  }
+
+  /* ── REGISTER ── */
+  async function doRegister(){
+    clearAlerts();
+    const name=document.getElementById('rName').value.trim(), email=document.getElementById('rEmail').value.trim(), pass=document.getElementById('rPass').value;
+    let ok=true;
+    if(!name){document.getElementById('rNameErr').style.display='block';ok=false;}
+    if(!email||!email.includes('@')){document.getElementById('rEmailErr').style.display='block';ok=false;}
+    if(!pass||pass.length<6){document.getElementById('rPassErr').style.display='block';ok=false;}
+    if(!ok) return;
+    document.getElementById('rBtn').disabled=true; document.getElementById('rSp').style.display='block'; document.getElementById('rIc').style.display='none';
+    try{
+      const res=await fetch('register.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pass})});
+      const d=await res.json();
+      if(d.success){ localStorage.setItem('gocosys_user',JSON.stringify(d.user)); document.getElementById('rOk').classList.add('show'); document.getElementById('rOkMsg').textContent='🎉 Account created! Welcome!'; setTimeout(()=>{ closeModal(); renderNavUser(d.user); },900); }
+      else{ document.getElementById('rErr').classList.add('show'); document.getElementById('rErrMsg').textContent=d.message; }
+    }catch(e){ document.getElementById('rErr').classList.add('show'); document.getElementById('rErrMsg').textContent='Server error. Is XAMPP running?'; }
+    document.getElementById('rBtn').disabled=false; document.getElementById('rSp').style.display='none'; document.getElementById('rIc').style.display='';
+  }
+
+  /* ── LOGOUT ── */
+  async function doLogout(){ try{await fetch('logout.php');}catch(e){} localStorage.removeItem('gocosys_user'); _user=null; renderNavGuest(); }
+
+  /* ── NAVBAR USER ── */
+  function renderNavUser(user){
+    _user=user;
+    document.getElementById('navAuthChip')?.remove();
+    const nav=document.getElementById('navLinks');
+    const li=document.createElement('li'); li.id='navAuthChip'; li.className='nav-user-wrap';
+    li.innerHTML=`<div class="nav-user-btn" id="nubtn" onclick="toggleDD()"><div class="nav-uav" style="background:${user.color}">${user.initials}</div><span class="nav-uname">${user.name.split(' ')[0]}</span><i class="bi bi-chevron-down nav-uchev"></i></div><div class="nav-user-dd" id="nudd"><div class="dd-head"><div class="dd-name">${user.name}</div><div class="dd-email">${user.email}</div><span class="dd-role ${user.role==='admin'?'role-admin':'role-user'}">${user.role==='admin'?'⚡ Admin':'👤 User'}</span></div>${user.role==='admin'?'<a href="admin.html" class="dd-item"><i class="bi bi-speedometer2" style="color:#c8942a"></i> Admin Panel</a>':''}<button class="dd-item danger" onclick="doLogout()"><i class="bi bi-box-arrow-right" style="color:#ef5350"></i> Logout</button></div>`;
+    nav.appendChild(li);
+    document.addEventListener('click', e=>{ if(!e.target.closest('#navAuthChip')){ document.getElementById('nubtn')?.classList.remove('open'); document.getElementById('nudd')?.classList.remove('open'); }});
+  }
+  function toggleDD(){ document.getElementById('nubtn')?.classList.toggle('open'); document.getElementById('nudd')?.classList.toggle('open'); }
+  function renderNavGuest(){
+    document.getElementById('navAuthChip')?.remove();
+    const nav=document.getElementById('navLinks');
+    const li=document.createElement('li'); li.id='navAuthChip';
+    li.innerHTML=`<button onclick="openModal('login')" style="background:rgba(144,202,249,.08);border:1px solid rgba(144,202,249,.25);border-radius:10px;color:#90CAF9;font-family:'DM Sans',sans-serif;font-size:clamp(.72rem,1.1vw,.84rem);font-weight:600;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .3s;"><i class="bi bi-person-fill"></i> Login</button>`;
+    nav.appendChild(li);
+  }
+  function showLoginToast(action){
+    document.getElementById('toastMsg').textContent=`Please login to ${action} this article.`;
+    const t=document.getElementById('loginToast'); t.style.display='block';
+    clearTimeout(window._tt); window._tt=setTimeout(()=>t.style.display='none',5000);
+  }
+  window.openModal=openModal; window.showLoginToast=showLoginToast; window.getCurrentUser=()=>_user;
+
+  /* ── INIT AUTH ── */
+  (async function initAuth(){
+    try{
+      const res=await fetch('check_session.php'); const d=await res.json();
+      if(d.loggedIn){ localStorage.setItem('gocosys_user',JSON.stringify(d.user)); renderNavUser(d.user); }
+      else{ localStorage.removeItem('gocosys_user'); renderNavGuest(); }
+    }catch(e){ const s=localStorage.getItem('gocosys_user'); if(s) renderNavUser(JSON.parse(s)); else renderNavGuest(); }
+  })();
+  </script>
+
+  <script src="blog_script.js"></script>
+</body>
+</html>
